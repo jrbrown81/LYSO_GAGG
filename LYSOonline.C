@@ -13,6 +13,7 @@
 using namespace std;
 
 const Int_t nPixels=2048;
+const Int_t pulserChan=500; // check this!!!
 // Some cuts...
 const Long64_t timeWindow = 22.; // in ns. This should get all hw_trig coincidences
 const Int_t firstHit=1; // switch to choose default first hit. 0=highest energy, 1=second highest. // Julien's sims suggest largest hit is second
@@ -155,6 +156,11 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
 	Int_t eBins1D=1100;
 	Int_t eBins2D=110;
 
+	TString outfile="output_" + name;
+	cout << "Writing output to " << pathOut+outfile << endl;
+  TFile *f2 = new TFile(pathOut+outfile,"recreate");
+	f2->cd();
+  TH1F* hits_h = new TH1F("hits","Number of hits per event",20,0,20);
   TH1F* hitsTOP_h = new TH1F("hitsTOP","Number of hits per event in top array",20,0,20);
   TH1F* hitsBOT_h = new TH1F("hitsBOT","Number of hits per event in bottom array",20,0,20);
 
@@ -164,15 +170,18 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
   TH1F* energyTOP_h = new TH1F("energyTOP","Total energy in top array;Energy (ADC);Counts /bin",eBins1D,eMin4Spec,eMax4Spec);
   TH1F* energyBOT_h = new TH1F("energyBOT","Total energy in bottom array;Energy (ADC);Counts /bin",eBins1D,eMin4Spec,eMax4Spec);
 
+	TH1F* pulserEnergy_h = new TH1F("pulserEnergy",Form("Pulser energy spectrum (channel %i)",pulserChan),eBins1D,eMin4Spec,eMax4Spec);
+	TH1F* pulserTime_h = new TH1F("pulserTime",Form("Pulser time, relative to first hit in the event (channel %i)",pulserChan),100,-25,25);
   TH1F* energySpec_h[nPixels];
   TH1F* timeSpec_h[nPixels];
   for(int i=0;i<nPixels;i++) {
     energySpec_h[i]=new TH1F(Form("energySpec_%i",i),Form("Energy Spectrum for channel %i",i),eBins2D,eMin4Spec,eMax4Spec);
+		timeSpec_h[i]=new TH1F(Form("timeSpec_%i",i),Form("Hit time relative to the first hit in the event for channel %i",i),100,-25,25);
   }
 
   TH2F* chnVsEnergy_h = new TH2F("chnVsEnergy","ChannelID vs. Energy (ADC);Energy (ADC);channelID",eBins2D,eMin4Spec,eMax4Spec,nPixels,0,nPixels);
-  TH2F* chnVsEnergyTOP_h = new TH2F("chnVsEnergy","ChannelID vs. Energy (ADC);Energy (ADC);channelID",eBins2D,eMin4Spec,eMax4Spec,nPixels,0,nPixels);
-  TH2F* chnVsEnergyBOT_h = new TH2F("chnVsEnergy","ChannelID vs. Energy (ADC);Energy (ADC);channelID",eBins2D,eMin4Spec,eMax4Spec,nPixels,0,nPixels);
+  TH2F* chnVsEnergyTOP_h = new TH2F("chnVsEnergyTOP","ChannelID vs. Energy (ADC), Top array;Energy (ADC);channelID",eBins2D,eMin4Spec,eMax4Spec,1024,1024,nPixels);
+  TH2F* chnVsEnergyBOT_h = new TH2F("chnVsEnergyBOT","ChannelID vs. Energy (ADC), Bottom array;Energy (ADC);channelID",eBins2D,eMin4Spec,eMax4Spec,1024,0,1024);
   TH2F* chnVsEventTime_h = new TH2F("chnVsEventTime","ChannelID vs. Time since start of event;Time Difference (ns);channelID",1000,-20,80,nPixels,0,nPixels);
 ////////////////////
 
@@ -225,12 +234,21 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
 	    }
 
 // Fill some event histograms
+			hits_h->Fill(hits);
       hitsTOP_h->Fill(hitsTOP);
       hitsBOT_h->Fill(hitsBOT);
 
       for(int i=0;i<hits;i++) {
         chnVsEnergy_h->Fill(energyVectorAll[i],channelVector[i]);
+				if(portVector[i]==2) chnVsEnergyTOP_h->Fill(energyVectorAll[i],channelVector[i]);
+				if(portVector[i]==1) chnVsEnergyBOT_h->Fill(energyVectorAll[i],channelVector[i]);
         energySpec_h[channelVector[i]]->Fill(energyVectorAll[i]);
+				timeSpec_h[channelVector[i]]->Fill(eventTime_v[i]);
+
+				if(channelVector[i]==pulserChan) {
+					pulserEnergy_h->Fill(energyVectorAll[i]);
+					pulserTime_h->Fill(eventTime_v[i]);
+				}
 
         if(i>0){ // skip the first hit as this defines t0
           chnVsEventTime_h->Fill(eventTime_v[i],channelVector[i]);
@@ -301,17 +319,28 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
 	f->Close();
 
 // Write histograms and tree to output file then close file
-  hitTime_h->Write();
+  hits_h->Write();
+  hitsTOP_h->Write();
+  hitsBOT_h->Write();
+
+	hitTime_h->Write();
   eventTime_h->Write();
+	chnVsEventTime_h->Write();
 
   energyTOP_h->Write();
   energyBOT_h->Write();
 
   chnVsEnergy_h->Write();
-  chnVsEventTime_h->Write();
+	chnVsEnergyTOP_h->Write();
+	chnVsEnergyBOT_h->Write();
 
-  hitsTOP_h->Write();
-  hitsBOT_h->Write();
+	pulserEnergy_h->Write();
+	pulserTime_h->Write();
+
+	for(int i=0;i<nPixels;i++) energySpec_h[i]->Write();
+	for(int i=0;i<nPixels;i++) timeSpec_h[i]->Write();
+
+	f2->Close();
 } // End of Process()
 
 Int_t GetRunNumber(TString fileName, const char* prefix, const char* suffix)
