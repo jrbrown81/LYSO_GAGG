@@ -210,24 +210,40 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
       // int indexTOP[hitsTOP];
       // int indexBOT[hitsBOT];
 
-      for(int i=0;i<hitsTOP;i++) {
+      for(int i=0;i<hits;i++) {
       	if(portVector[i]==2) {
         	energyVectorTOP.insert(energyVectorTOP.begin(),energyVectorAll[i]);
-      	}
-        if(energyVectorTOP[i]>sumThresh) {
-          energyTOP+=energyVectorTOP[i];
-        }
-        // energyIndexTOP.push_back(indexTOP[i]);
-      }
-      for(int i=0;i<hitsBOT;i++) {
+        	if(energyVectorTOP[hitsTOP]>sumThresh) {
+          	energyTOP+=energyVectorTOP[hitsTOP];
+        	}
+					hitsTOP++;
+				}
       	if(portVector[i]==1) {
         	energyVectorBOT.insert(energyVectorBOT.begin(),energyVectorAll[i]);
-      	}
-        if(energyVectorBOT[i]>sumThresh) {
-          energyBOT+=energyVectorBOT[i];
-        }
-        // energyIndexBOT.push_back(indexBOT[i]);
+        	if(energyVectorBOT[hitsBOT]>sumThresh) {
+          	energyBOT+=energyVectorBOT[hitsBOT];
+        	}
+					hitsBOT++;
+				}
       }
+      // for(int i=0;i<hitsTOP;i++) {
+      // 	if(portVector[i]==2) {
+      //   	energyVectorTOP.insert(energyVectorTOP.begin(),energyVectorAll[i]);
+      // 	}
+      //   if(energyVectorTOP[i]>sumThresh) {
+      //     energyTOP+=energyVectorTOP[i];
+      //   }
+      //   // energyIndexTOP.push_back(indexTOP[i]);
+      // }
+      // for(int i=0;i<hitsBOT;i++) {
+      // 	if(portVector[i]==1) {
+      //   	energyVectorBOT.insert(energyVectorBOT.begin(),energyVectorAll[i]);
+      // 	}
+      //   if(energyVectorBOT[i]>sumThresh) {
+      //     energyBOT+=energyVectorBOT[i];
+      //   }
+      //   // energyIndexBOT.push_back(indexBOT[i]);
+      // }
 
 //////
       if(goodTOP && goodBOT && goodEnergyTOP && goodEnergyBOT) goodEvent=kTRUE;
