@@ -164,6 +164,9 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
   TH1F* hitsTOP_h = new TH1F("hitsTOP","Number of hits per event in top array",20,0,20);
   TH1F* hitsBOT_h = new TH1F("hitsBOT","Number of hits per event in bottom array",20,0,20);
 
+	TH1F* hitPatternTOP_h = new TH1F("hitPatternTOP","Hit pattern for top array",1024,1024,nPixels);
+	TH1F* hitPatternBOT_h = new TH1F("hitPatternBOT","Hit pattern for bottom array",1024,1024,nPixels);
+
   TH1F* hitTime_h=new TH1F("hitTime","Time difference between hits;time difference (ns); counts",1000,-20,80);
   TH1F* eventTime_h=new TH1F("eventTime","Hit time relative to the first hit in the event;time difference (ns); counts",1000,-20,80);
 
@@ -240,8 +243,14 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
 
       for(int i=0;i<hits;i++) {
         chnVsEnergy_h->Fill(energyVectorAll[i],channelVector[i]);
-				if(portVector[i]==2) chnVsEnergyTOP_h->Fill(energyVectorAll[i],channelVector[i]);
-				if(portVector[i]==1) chnVsEnergyBOT_h->Fill(energyVectorAll[i],channelVector[i]);
+				if(portVector[i]==2) {
+					chnVsEnergyTOP_h->Fill(energyVectorAll[i],channelVector[i]);
+					hitPatternTOP_h ->Fill(channelVector[i]);
+				}
+				if(portVector[i]==1) {
+					chnVsEnergyBOT_h->Fill(energyVectorAll[i],channelVector[i]);
+					hitPatternBOT_h ->Fill(channelVector[i]);
+				}
         energySpec_h[channelVector[i]]->Fill(energyVectorAll[i]);
 				timeSpec_h[channelVector[i]]->Fill(eventTime_v[i]);
 
@@ -330,7 +339,10 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
   energyTOP_h->Write();
   energyBOT_h->Write();
 
-  chnVsEnergy_h->Write();
+  hitPatternTOP_h->Write();
+  hitPatternBOT_h->Write();
+
+	chnVsEnergy_h->Write();
 	chnVsEnergyTOP_h->Write();
 	chnVsEnergyBOT_h->Write();
 
