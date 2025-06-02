@@ -165,7 +165,7 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
   TH1F* hitsBOT_h = new TH1F("hitsBOT","Number of hits per event in bottom array",20,0,20);
 
 	TH1F* hitPatternTOP_h = new TH1F("hitPatternTOP","Hit pattern for top array",1024,1024,nPixels);
-	TH1F* hitPatternBOT_h = new TH1F("hitPatternBOT","Hit pattern for bottom array",1024,1024,nPixels);
+	TH1F* hitPatternBOT_h = new TH1F("hitPatternBOT","Hit pattern for bottom array",1024,0,1024);
 
   TH1F* hitTime_h=new TH1F("hitTime","Time difference between hits;time difference (ns); counts",1000,-20,80);
   TH1F* eventTime_h=new TH1F("eventTime","Hit time relative to the first hit in the event;time difference (ns); counts",1000,-20,80);
