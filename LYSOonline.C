@@ -140,8 +140,8 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
   vector<Float_t> energyVectorAll;
   vector<Float_t> energyVectorTOP;
   vector<Float_t> energyVectorBOT;
-  vector<Int_t> energyIndexTOP;
-  vector<Int_t> energyIndexBOT;
+  // vector<Int_t> energyIndexTOP;
+  // vector<Int_t> energyIndexBOT;
   vector<Int_t> channelVector;
   vector<Long64_t> timeVector;
   vector<Float_t> eventTime_v;
@@ -204,8 +204,8 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
       if(hitsTOP==2) goodTOP=kTRUE;
       hitsBOT=(int)energyVectorBOT.size();
       if(hitsBOT==2) goodBOT=kTRUE;
-      int indexTOP[hitsTOP];
-      int indexBOT[hitsBOT];
+      // int indexTOP[hitsTOP];
+      // int indexBOT[hitsBOT];
 
       for(int i=0;i<hitsTOP;i++) {
       	if(portVector[i]==2) {
@@ -214,7 +214,7 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
         if(energyVectorTOP[i]>sumThresh) {
           energyTOP+=energyVectorTOP[i];
         }
-        energyIndexTOP.push_back(indexTOP[i]);
+        // energyIndexTOP.push_back(indexTOP[i]);
       }
       for(int i=0;i<hitsBOT;i++) {
       	if(portVector[i]==1) {
@@ -223,7 +223,7 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
         if(energyVectorBOT[i]>sumThresh) {
           energyBOT+=energyVectorBOT[i];
         }
-        energyIndexBOT.push_back(indexBOT[i]);
+        // energyIndexBOT.push_back(indexBOT[i]);
       }
 
 //////
@@ -270,8 +270,8 @@ void Process(TString pathOut,TString pathIn,TString name, Long64_t toProcess)
       energyVectorTOP.clear();
       energyVectorBOT.clear();
       channelVector.clear();
-      energyIndexTOP.clear();
-      energyIndexBOT.clear();
+      // energyIndexTOP.clear();
+      // energyIndexBOT.clear();
       timeVector.clear();
       eventTime_v.clear();
 			portID=0;
